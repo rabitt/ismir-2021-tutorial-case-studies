@@ -1,0 +1,5 @@
+numpy>=1.18.0
+librosa>=0.8.0
+torch>=1.10.0
+mirdata>=0.3.6
+matplotlib>=3.3.0
