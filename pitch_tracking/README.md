@@ -56,3 +56,32 @@ for example
 ```
 $ python evaluate.py pitch_salience.pt sonifications
 ```
+
+## Related Reading
+
+### Datasets Used
+
+* Bittner, Rachel M., et al. ["Medleydb: A multitrack dataset for annotation-intensive mir research."](https://archives.ismir.net/ismir2014/paper/000322.pdf) International Society for Music Information Retrieval (ISMIR) Conference. 2014.
+
+* Bittner, Rachel M., et al. ["vocadito: A dataset of solo vocals with $ f_0 $, note, and lyric annotations."](https://arxiv.org/pdf/2110.05580) arXiv preprint arXiv:2110.05580 (2021).
+
+
+### Neural networks for pitch tracking / f0 estimation
+
+* Kim, Jong Wook, et al. ["Crepe: A convolutional representation for pitch estimation."](https://arxiv.org/pdf/1802.06182) IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP). 2018.
+
+* Bittner, Rachel M., et al. ["Deep Salience Representations for F0 Estimation in Polyphonic Music."](https://archives.ismir.net/ismir2017/paper/000085.pdf) International Society for Music Information Retrieval (ISMIR) Conference. 2017.
+
+
+### Pitch Salience
+
+* Müller, Meinard. [Fundamentals of music processing: Audio, analysis, algorithms, applications.](https://www.audiolabs-erlangen.de/fau/professor/mueller/bookFMP) Springer, 2015. pp. 445-450.
+
+* Salamon, Justin, et al. ["Melody extraction from polyphonic music signals: Approaches, applications, and challenges."](https://repositori.upf.edu/bitstream/handle/10230/42183/Gomez_iee_melo.pdf?sequence=1&isAllowed=y) IEEE Signal Processing Magazine 31.2 (2014): 118-134.
+
+
+### Harmonic CQT
+
+* Bittner, Rachel M., et al. ["Deep Salience Representations for F0 Estimation in Polyphonic Music."](https://archives.ismir.net/ismir2017/paper/000085.pdf) International Society for Music Information Retrieval (ISMIR) Conference. 2017.
+
+* Bittner, Rachel M., Brian McFee, and Juan P. Bello. ["Multitask learning for fundamental frequency estimation in music."](https://arxiv.org/pdf/1809.00381) arXiv preprint arXiv:1809.00381 (2018).
