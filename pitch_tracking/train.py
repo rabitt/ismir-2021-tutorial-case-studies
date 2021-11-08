@@ -1,8 +1,8 @@
+import argparse
 import os
 import glob
-import librosa
+
 import numpy as np
-from constants import compute_hcqt, CQT_FREQUENCIES
 import torch
 from torch import nn
 from torch.utils.data import Dataset, DataLoader
@@ -19,7 +19,6 @@ class PitchSalience(nn.Module):
         self.conv2 = nn.Conv2d(16, 16, (3, 3), padding="same")
         self.bn2 = nn.BatchNorm2d(16)
         self.conv3 = nn.Conv2d(16, 1, (3, 3), padding="same")
-        self.flatten = nn.Flatten(1, 4)
         self.relu = nn.ReLU()
 
     def forward(self, x):
@@ -34,6 +33,7 @@ class PitchSalience(nn.Module):
 
         x = torch.transpose(x, 1, 2)  # (batch, time, 1, freq)
         x = torch.transpose(x, 2, 3)  # (batch, time, freq, 1)
+        # no sigmoid at the end here, because we are using BCEWithLogitsLoss
         return x
 
 
@@ -52,18 +52,32 @@ class PitchData(Dataset):
         )
 
 
-def plot_predictions(model, cqt, salience):
-    predicted_salience = model(cqt).detach()
+def visualize(model, hcqt, salience):
+    """Visualize the model inputs, predictions and targets
+
+    Args:
+        model (nn.Module): pytorch model
+        hcqt (np.ndarray): hcqt matrix
+        salience (np.ndarray): target salience matrix
+
+    Returns:
+        plt.Figure: matplotlib figure handle
+    """
+    predicted_salience = model(hcqt).detach()
     fig = plt.figure(figsize=(10, 10))
-    n_examples = np.min([cqt.shape[0], 3])
+    n_examples = 3
     for i in range(n_examples):
+
+        # plot the input
         plt.subplot(n_examples, 3, 1 + (n_examples * i))
-        plt.imshow(cqt[i, 1, :, :].T, origin="lower", cmap="magma")
+        # use channel 1 of the hcqt, which corresponds to h=1
+        plt.imshow(hcqt[i, 1, :, :].T, origin="lower", cmap="magma")
         plt.clim(0, 1)
         plt.colorbar()
-        plt.title(f"CQT")
+        plt.title(f"HCQT")
         plt.axis("tight")
 
+        # plot the target salience
         plt.subplot(n_examples, 3, 2 + (n_examples * i))
         plt.imshow(salience[i, :, :, 0].T, origin="lower", cmap="magma")
         plt.clim(0, 1)
@@ -71,8 +85,9 @@ def plot_predictions(model, cqt, salience):
         plt.title("Target")
         plt.axis("tight")
 
+        # plot the predicted salience
         plt.subplot(n_examples, 3, 3 + (n_examples * i))
-        plt.imshow(predicted_salience[i, :, :, 0].T, origin="lower", cmap="magma")
+        plt.imshow(torch.sigmoid(predicted_salience[i, :, :, 0].T), origin="lower", cmap="magma")
         plt.clim(0, 1)
         plt.colorbar()
         plt.title("Prediction")
@@ -82,39 +97,46 @@ def plot_predictions(model, cqt, salience):
     return fig
 
 
-def main():
+def main(args):
 
+    # Use the GPU if it's available
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print("Using {} device".format(device))
-    batch_size = 4
 
+    # initialize the model
     model = PitchSalience().to(device)
-    model = model
     print(model)
 
+    # define the loss function & optimizer
     loss_fn = nn.BCEWithLogitsLoss(pos_weight=torch.ones([1]) * 10)
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 
-    training_dataset = PitchData("data/train")
-    train_dataloader = DataLoader(training_dataset, batch_size=batch_size, shuffle=True)
+    # initialize the training dataset/loader
+    training_dataset = PitchData(os.path.join(args.data_dir, "train"))
+    train_dataloader = DataLoader(training_dataset, batch_size=args.batch_size, shuffle=True)
 
-    validation_dataset = PitchData("data/validation")
-    validation_dataloader = DataLoader(validation_dataset, batch_size=batch_size, shuffle=False)
+    # initialize the validation dataset/loader
+    validation_dataset = PitchData(os.path.join(args.data_dir, "validation"))
+    validation_dataloader = DataLoader(
+        validation_dataset, batch_size=args.batch_size, shuffle=False
+    )
 
-    writer = SummaryWriter("tensorboard")
+    # initialize the tensorboard writer
+    writer = SummaryWriter(args.tensorboard_dir)
 
-    epochs = 1
+    # training & validation loop
     n_validation_batches = len(validation_dataloader)
-    print_frequency = 100
     loss_counter = 0
     plot_counter = 0
-    for epoch in range(epochs):
+    for epoch in range(args.n_epochs):
         print(f"Epoch {epoch+1}\n-------------------------------")
 
         ## train
         model.train()
         running_loss = 0.0
         for batch, (X, y) in enumerate(train_dataloader):
+
+            # move the data to the GPU, ifusing
             X = X.to(device)
             y = y.to(device)
 
@@ -127,21 +149,22 @@ def main():
             loss.backward()
             optimizer.step()
 
+            # log the loss every 100 steps
             running_loss += loss.item()
-            if batch % print_frequency == 0:
-                print(f"batch: {batch}")
-                print(f"loss: {running_loss/print_frequency}")
-                writer.add_scalar("training loss", running_loss / print_frequency, loss_counter)
+            if batch % 100 == 0:
+                print(f"[{batch}] loss: {running_loss/100}")
+                writer.add_scalar("training loss", running_loss / 100, loss_counter)
                 loss_counter += 1
                 running_loss = 0.0
 
+            # visualize and validate every 1000 steps
             if batch % 1000 == 0:
                 writer.add_figure(
-                    "(Train) Predictions", plot_predictions(model, X, y), global_step=plot_counter
+                    "(Train) Predictions", visualize(model, X, y), global_step=plot_counter
                 )
                 plot_counter += 1
 
-                # validate
+                # run validation
                 model.eval()
                 validation_loss = 0
                 with torch.no_grad():
@@ -150,21 +173,34 @@ def main():
                         pred = model(X)
                         validation_loss += loss_fn(pred, y).item()
 
+                    # visualize the last validation batch
                     writer.add_figure(
                         "(Validation) Predictions",
-                        plot_predictions(model, X, y),
+                        visualize(model, X, y),
                         global_step=plot_counter,
                     )
+
+                    # compute validation loss over full validation set
                     validation_loss /= n_validation_batches
                     print(f"Avg validation loss: {validation_loss} \n")
                     writer.add_scalar("validation loss", validation_loss, loss_counter)
+
+                # put the model back in training mode
                 model.train()
 
     # save the model
-    torch.save(model.state_dict(), "pitch_salience.pt")
-
-    print("Done!")
+    torch.save(model.state_dict(), args.model_save_dir)
+    print(f"Done! Saved model to {args.model_save_dir}")
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Train a pitch tracking model")
+    parser.add_argument("data_dir", type=str, help="directory where the data lives")
+    parser.add_argument("model_save_dir", type=str, help="Path to save the model")
+    parser.add_argument(
+        "tensorboard_dir", type=str, help="Path to save the tensorboard visualizations"
+    )
+    parser.add_argument("--n_epochs", type=int, help="Number of epochs to train for", default=10)
+    parser.add_argument("--batch_size", type=int, help="Batch size", default=4)
+    args = parser.parse_args()
+    main(args)
