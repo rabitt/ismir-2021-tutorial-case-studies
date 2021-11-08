@@ -1,0 +1,25 @@
+
+nussl original NMF:
+https://github.com/nussl/nussl/blob/0149aa2f80311e12301f41e910f62a5b3eff6191/nussl/Nmf.py
+
+sklearn docs:
+https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.NMF.html#sklearn.decomposition.NMF
+https://scikit-learn.org/stable/modules/decomposition.html#nmf
+
+
+Papers:
+
+Daniel D. Lee  & H. Sebastian Seung
+Algorithms for Non-negative Matrix Factorization: http://luthuli.cs.uiuc.edu/~daf/courses/Opt-2019/Papers/lee01algorithms.pdf
+Learning the Parts of Objects by Non-negative Matrix Factorization: http://lsa.colorado.edu/LexicalSemantics/seung-nonneg-matrix.pdf
+
+Music applications
+------------------
+
+Cédric Févotte, Nancy Bertin, Jean-Louis Durrieu
+Nonnegative matrix factorization with the Itakura-Saito divergence: With application to music analysis
+https://watermark.silverchair.com/neco.2008.04-08-771.pdf?token=AQECAHi208BE49Ooan9kkhW_Ercy7Dm3ZL_9Cf3qfKAc485ysgAAAtQwggLQBgkqhkiG9w0BBwagggLBMIICvQIBADCCArYGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMccGX2p-dx9NL5DRSAgEQgIIChy_3Lq5ifyca6ID3sWFMGXjD5_7cav6oU5b4JQWF3JkUbU55yLmb3NmwiuCLfMGou_imivyuBXlRMYSmqOkBMgY1bTJW72vmdXjrTmhACpfrcvTVtv6G33BdR6-fZPnVf4XzpT2E_uwAsBv8DybDD1IfzVKeKz8NwwdxPtUhO0P0a88947far_baSQicTfZVhV_IPolhtnwPrUno328_dedVzrar7x5T3Onj8HPKUzrM8YPwkB2GpbhuKmd8WEOUxGfkvqF3baDbjjYQj-_-D9JQkxPWSyPy20TINR-g1nYanGllZ8pghNh5avbfL6rGmdeLqHh9-8ssj11MMf_6NuwjjsXIUcVPtzvAH0FkOkdIY69AnTv1IXfqYUOf7rLuOSzhuHAYpRleQS_Wl6d69TDKexusoI_HrMowDfGbndhyXccQP9AmHVWOEX_NTMaRW9puAwhLgKO6NgrzAcj1rf8s6MrFhwRhywY7V83r1k-VK_AyiGuBMnQGa7pfzCNnOfRVUIvw1Mz0KxqVJouP9m9Hn2SjrGbs_guiQsxCSjXCLTqWXfDriqDMEnILMEOfbRL_JGPEuawDCApxT4Iqb0_EwcyQp52z5eNIvt45H11R2YtrrhhWm8UOUP10RcsMOo7Z4KzFtv8h2GcMK0tTR6AaouvRjCb76pfht5Q0B25wGP8JMgRAU5WdtK8fTsdenGeTFnl4MJKhi0-9pyZeO3STlDBaV2_e81NeTeJ4iAUoqAH4Ndk0xtY5a3TLedMSUpZoWRDzrdKX5s6BGQJXJmP_ZXVSmoQ96TcjuKmCJKPaO1XM0xBfpBIfS_S1AHURWYKuLPvjPx1N9LsPhieIuygXvrB32ob7
+
+Paris Smaragdis & Judith C. Brown
+Non-Negative Matrix Factorization for Polyphonic Music Transcription
+https://merl.com/publications/docs/TR2003-139.pdf
