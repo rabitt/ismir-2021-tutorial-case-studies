@@ -1,0 +1,8 @@
+jupyterlab
+librosa
+mirdata
+openl3==0.4.1
+pandas
+scikit-learn
+tensorflow>=2.0.0
+tqdm
